@@ -35,21 +35,22 @@ cc.Class({
         const location = e.getLocation()
         const p = this.node.convertToNodeSpaceAR(location);
         this.bar.position = p
-        const x = p.x;
-        const y = p.y;
+        const direction = p.normalize();
+        // const x = p.x;
+        // const y = p.y;
 
-        const angle = Math.atan(y / x) * 180 / Math.PI;
-        let curAngle = 0; // 0 -> 360
-        if (y < 0 && x < 0) { // 3
-            curAngle = angle + 180;
-        } else if (y > 0 && x < 0) { // 2
-            curAngle = angle + 180;
-        } else if (y < 0 && x > 0) { // 4
-            curAngle = angle + 360;
-        } else { // 1
-            curAngle = angle;
-        }
-        this.player.getComponent('Player').moveToAngle(curAngle);
+        // const angle = Math.atan(y / x) * 180 / Math.PI;
+        // let curAngle = 0; // 0 -> 360
+        // if (y < 0 && x < 0) { // 3
+        //     curAngle = angle + 180;
+        // } else if (y > 0 && x < 0) { // 2
+        //     curAngle = angle + 180;
+        // } else if (y < 0 && x > 0) { // 4
+        //     curAngle = angle + 360;
+        // } else { // 1
+        //     curAngle = angle;
+        // }
+        this.player.getComponent('Player').moveToAngle(direction);
         // .moveAction(p)
 
         // console.log(this.player.getComponent('Player'), 88888)
@@ -60,7 +61,6 @@ cc.Class({
     },
 
     touchEnd() {
-        this.bar.x = 0;
-        this.bar.y = 0;
+        this.bar.position = cc.v2(0, 0);
     }
 });

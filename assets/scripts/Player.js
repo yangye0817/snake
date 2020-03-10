@@ -48,11 +48,10 @@ cc.Class({
         return action;
     },
 
-    moveToAngle(angle) {
+    moveToAngle(direction) {
 
         // 
-
-
+        this.direction = direction;
 
         return;
 
@@ -125,10 +124,6 @@ cc.Class({
         
     },
 
-    start () {
-
-    },
-
     changeBodyPosition () {
         const nodeH = this.node.height;
         const nodeW = this.node.width;
@@ -138,16 +133,64 @@ cc.Class({
     },
 
     onLoad() {
+        this.renderTimes = 0;
+        this.gap = 20
+        this.speed = 5
+        this.headPath = [this.node.position];
+        this.bodyPath = [];
+        // this.bodyPostions = [];
+        this.direction = null;
         this.bodySections = [];
-        let bodyNode = new cc.Node();
-        for(let i = 0; i < 10; i++) {
+        // let bodyNode = new cc.Node();
+        for(let i = 0; i < 3; i++) {
+            
             const bodySection = cc.instantiate(this.bodyPrefab);
-            bodySection.zIndex = -1;
-            bodySection.x = -(i + 1) * 20
-            bodyNode.addChild(bodySection);
+            // bodySection.zIndex = -1;
+            // bodySection.x = -(i + 1) * 20
             this.bodySections.push(bodySection);
+            
+            let direction = null;
+            let lastNode = null;
+            if (i == 0) {
+                direction = cc.v2(1, 0)
+                lastNode = this.node;
+            } else if (i == 1) {
+                lastNode = this.bodySections[i - 1];
+                direction = this.node.position.sub(lastNode.position).normalize();
+            } else {
+                lastNode = this.bodySections[i - 1];
+                direction = this.bodySections[i - 2].position.sub(lastNode.position).normalize();
+
+            }
+
+            // console.log(lastNode.position, direction, 9999)
+
+            // console.log(bodySection.position)
+            // bodySection.position = cc.v2(-20 * (i + 1), 0)
+            // console.log(lastNode.position.sub(direction.mul(20)), 999)
+            bodySection.position = lastNode.position.sub(direction.mul(this.gap))
+            // bodySection.x = -(i + 1) * 200
+            // console.log(bodySection.position)
+            // bodySection.position = lastNode.position.sub(direction.mul(20))
+            // this.bodyPostions[i] = [];
+            // this.bodyPostions[i].push(lastNode.position.sub(direction.mul(10)));
+            
+            this.node.parent.addChild(bodySection);
+            this.bodyPath[i] = [];
+            for(let j = 0; j < this.gap / this.speed; j++) {
+                const b = direction.mul(this.gap - this.speed * j)
+                // console.log(b, 7777)
+                const a = lastNode.position.sub(b)
+                // console.log(a, 88888)
+                this.bodyPath[i].push(a);
+                // this.bodyPath[i].push(lastNode.position.sub(direction.mul(15)));
+                // this.bodyPath[i].push(lastNode.position.sub(direction.mul(10)));
+                // this.bodyPath[i].push(lastNode.position.sub(direction.mul(5)));
+            // this.bodyPath[i].push(lastNode.position);
+            }
         }
-        this.node.addChild(bodyNode);
+        console.log(this.bodyPath ,99999)
+        // this.node.addChild(bodyNode);
         this.moveAngle = 0;
         // this.node.x = 200;
         // this.node.y = 0;
@@ -167,15 +210,43 @@ cc.Class({
     },
 
     update (dt) {
+        if (this.direction) {
+            const dis = this.direction.mul(this.speed);
+            this.node.position = this.node.position.add(dis);
+            let angle = cc.v2(1, 0).signAngle(this.direction) * 180/Math.PI;
+            this.node.angle = angle;
 
-        
-        const curAngle = this.node.angle;
-        // console.log(this.moveAngle, curAngle, 999999)
-        if (this.moveAngle - curAngle > 90) {
-            // this.moveAngle = 90;
+            this.renderTimes += 1;
+
+            // this.headPath.push(this.node.position);
+
+            this.bodySections.forEach((body, i) => {
+                if (i === 0) {
+                    this.bodyPath[i].push(this.node.position);
+                    const bodyPath = this.bodyPath[i];
+                    // console.log(bodyPath, 888888)
+                    body.position = bodyPath[this.renderTimes - 1];
+                    // body.position = this.headPath[this.headPath.length - 2]
+                } else {
+                    this.bodyPath[i].push(this.bodyPath[i - 1][this.renderTimes - 1]);
+                    const bodyPath = this.bodyPath[i];
+                    // console.log(bodyPath, 123)
+                    // debugger
+                    body.position = bodyPath[this.renderTimes - 1];
+                }
+            })
+
         }
 
-        const radius = 25;
+
+        
+        // const curAngle = this.node.angle;
+        // // console.log(this.moveAngle, curAngle, 999999)
+        // if (this.moveAngle - curAngle > 90) {
+        //     // this.moveAngle = 90;
+        // }
+
+        // const radius = 25;
         
 
         return;
