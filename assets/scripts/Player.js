@@ -218,23 +218,21 @@ cc.Class({
 
             this.renderTimes += 1;
 
-            // this.headPath.push(this.node.position);
-
             this.bodySections.forEach((body, i) => {
                 if (i === 0) {
-                    this.bodyPath[i].push(this.node.position);
                     const bodyPath = this.bodyPath[i];
-                    // console.log(bodyPath, 888888)
+                    bodyPath.push(this.node.position);
                     body.position = bodyPath[this.renderTimes - 1];
-                    // body.position = this.headPath[this.headPath.length - 2]
                 } else {
-                    this.bodyPath[i].push(this.bodyPath[i - 1][this.renderTimes - 1]);
                     const bodyPath = this.bodyPath[i];
-                    // console.log(bodyPath, 123)
-                    // debugger
+                    bodyPath.push(this.bodyPath[i - 1][this.renderTimes - 1]);
                     body.position = bodyPath[this.renderTimes - 1];
                 }
             })
+
+            // this.bodyPath.forEach((bodyPath) => {
+            //     bodyPath.shift()
+            // })
 
         }
 
